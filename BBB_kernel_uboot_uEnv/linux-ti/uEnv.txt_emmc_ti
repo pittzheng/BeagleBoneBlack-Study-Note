@@ -1,0 +1,34 @@
+kernel_file=uImage
+
+#Video: Uncomment to override:
+#kms_force_mode=video=HDMI-A-1:1024x768@60
+
+##BeagleBone Cape Overrides
+##Note: On the BeagleBone Black, there is also an uEnv.txt in the eMMC, so if these changes do not seem to be makeing a difference...
+
+##BeagleBone Black:
+##Disable HDMI/eMMC
+#capemgr=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONE-EMMC-2G
+
+console=ttyO0,115200n8
+
+# mmcroot=UUID=cdac2f91-97be-47a0-a8d6-33ba2caf1b36 ro
+mmcroot=/dev/mmcblk0p2 ro
+mmcrootfstype=ext4 rootwait
+
+# loadkernel=load mmc ${mmcdev}:${mmcpart} 0x80200000 ${kernel_file}
+loadkernel=load mmc 1:2 0x80200000 /boot/uImage
+
+boot_classic=run loadkernel
+boot_ftd=run loadkernel
+
+device_args=run mmcargs
+mmcargs=setenv bootargs console=${console} ${optargs} ${kms_force_mode} root=${mmcroot} rootfstype=${mmcrootfstype} ${expansion} ${capemgr}
+
+optargs=
+#expansion_args=setenv expansion ip=${ip_method}
+#Classic Board File Boot:
+#uenvcmd=run boot_classic; run device_args; bootz 0x80200000 0x81000000:${initrd_size}
+#New Device Tree Boot:
+uenvcmd=run boot_ftd; run device_args; bootm 0x80200000
+
